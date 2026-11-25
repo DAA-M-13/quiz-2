@@ -1,5 +1,5 @@
-﻿import * as bfs from "./algorithms/bfs.js";
-import * as astar from "./algorithms/astar.js";
+﻿import { budgets, createSearch, runSearch } from "./algorithms/bfs.js";
+import { createSearch as createAstarSearch } from "./algorithms/astar.js";
 import { createChapter } from "./core/chapterGenerator.js";
 import { applyMove, startRound, undo } from "./core/gameState.js";
 import { loadChapter, prepareRound, saveChapter } from "./core/roundManager.js";
@@ -223,7 +223,7 @@ byId("algorithm-bfs").onclick = () => {
 };
 byId("algorithm-astar").onclick = () => {
   algorithms.close();
-  assist(true, astar);
+  assist(true, createAstarSearch);
 };
 
 byId("undo").onclick = () => {
