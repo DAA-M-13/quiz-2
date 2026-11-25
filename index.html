@@ -31,7 +31,9 @@
             <div class="grid-wrap">
               <div class="axis cols"></div>
               <div class="axis rows"></div>
-              <div id="board" aria-label="16 × 16 Free Play board"></div>
+              <div id="board" aria-label="16 × 16 Free Play board">
+                <div id="search-overlay" hidden aria-hidden="true"></div>
+              </div>
             </div>
             <small class="board-size">16 × 16</small>
           </div>
@@ -126,7 +128,7 @@
       <h2 id="algorithm-title">Choose a Search Algorithm</h2>
       <p>Find a path from the current robot positions to the target tile.</p>
       <div class="algorithm-options">
-        <button id="algorithm-bfs" class="algorithm-option primary">
+        <button id="algorithm-bfs" class="algorithm-option">
           <strong>Breadth-First Search (BFS)</strong>
         </button>
         <button id="algorithm-iddfs" class="algorithm-option">

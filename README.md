@@ -15,7 +15,7 @@ From the project directory, install dependencies with `npm ci` and start Vite wi
 | Control | What it does |
 |---|---|
 | Hint | Shows the first robot and direction on a shortest path from the current positions. |
-| Solve | Opens **Choose a Search Algorithm**. Select BFS, IDDFS, or A* to find a path during **Search Exploration** and watch each move during **Solution Playback**. |
+| Solve | Opens **Choose a Search Algorithm**. Select BFS, IDDFS, or A* to animate up to 100 sampled positions visited during **Search Exploration**, then watch the solution during **Solution Playback**. |
 | Undo | Takes back one completed move. |
 | Restart Round (R) | Restores the positions at the start of this round and clears move history. |
 | Next Round | Starts from the four final positions on the same board with a new target robot–tile pair. |

@@ -12,6 +12,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
   const key = (p) => ((p[0] * 256 + p[1]) * 256 + p[2]) * 256 + p[3];
   const seen = new Set([key(initial)]);
   const candidates = new Map();
+  const trace = goal ? [] : null;
   let head = 0;
   let status = "limited";
   let path = null;
@@ -23,6 +24,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
   function expand() {
     const parent = head++;
     const node = queue[parent];
+    if (trace) trace.push([...node.positions]);
     for (let robot = 0; robot < 4; robot++) {
       for (const direction of directions) {
         const end = slide(board, node.positions, robot, direction);
@@ -68,7 +70,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
       const last = head + states;
       while (status === "limited" && head < last && performance.now() < stop)
         expand();
-      return { status, path, candidates, expanded: head };
+      return { status, path, candidates, trace: trace ?? [], expanded: head };
     },
   };
 }

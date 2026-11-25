@@ -4,6 +4,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
   const initial = [...positions];
   const key = (p) => ((p[0] * 256 + p[1]) * 256 + p[2]) * 256 + p[3];
   const candidates = new Map();
+  const trace = goal ? [] : null;
   const fullyExpanded = new Set();
   const onPath = new Set([key(initial)]);
   let depthLimit = 0;
@@ -55,6 +56,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
     if (!frame.entered) {
       frame.entered = true;
       expanded++;
+      if (trace) trace.push([...frame.positions]);
       if (frame.depth === depthLimit) {
         for (let robot = 0; robot < 4; robot++) {
           for (const direction of directions) {
@@ -124,7 +126,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
       while (status === "limited" && expanded < last && performance.now() < stop) {
         step();
       }
-      return { status, path, candidates, expanded };
+      return { status, path, candidates, trace: trace ?? [], expanded };
     },
   };
 }
