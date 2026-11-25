@@ -1,5 +1,6 @@
 ﻿import { budgets, createSearch, runSearch } from "./algorithms/bfs.js";
 import { createSearch as createAstarSearch } from "./algorithms/astar.js";
+import { createSearch as createIddfsSearch } from "./algorithms/iddfs.js";
 import { createChapter } from "./core/chapterGenerator.js";
 import { applyMove, startRound, undo } from "./core/gameState.js";
 import { loadChapter, prepareRound, saveChapter } from "./core/roundManager.js";
@@ -148,14 +149,14 @@ async function move(direction) {
   afterMove();
 }
 
-async function assist(animate) {
+async function assist(animate, searchFactory = createSearch) {
   if (locked() || mode === "searching") return;
   const signal = interrupt();
   mode = "searching";
   byId("status").textContent = "Search Exploration";
   render();
   const result = await runSearch(
-    createSearch(game.round, game.positions, { goal: game.round }),
+    searchFactory(game.round, game.positions, { goal: game.round }),
     budgets.solution,
     signal,
   );
@@ -220,6 +221,10 @@ algorithms.querySelector(".close").onclick = () => algorithms.close();
 byId("algorithm-bfs").onclick = () => {
   algorithms.close();
   assist(true);
+};
+byId("algorithm-iddfs").onclick = () => {
+  algorithms.close();
+  assist(true, createIddfsSearch);
 };
 byId("algorithm-astar").onclick = () => {
   algorithms.close();

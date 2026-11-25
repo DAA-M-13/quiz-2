@@ -74,7 +74,7 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await expect(page.locator("#algorithms")).toBeVisible();
   await expect(page.locator("#algorithm-title")).toHaveText("Choose a Search Algorithm");
   await expect(page.locator("#algorithm-bfs")).toBeEnabled();
-  await expect(page.locator("#algorithms button:disabled")).toHaveCount(2);
+  await expect(page.locator("#algorithms button:disabled")).toHaveCount(1);
   await page.click("#algorithm-bfs");
   await expect(page.locator("#status")).toHaveText("Solution Playback · 1/2 · Byte down ↓");
   await expect(page.locator("#undo")).toBeDisabled();
@@ -150,6 +150,15 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await expect(page.locator("#victory")).not.toBeVisible();
   await count(page, 0);
   expect(errors).toEqual([]);
+});
+
+test("IDDFS finds and plays the shortest solution", async ({ page }) => {
+  await openFixture(page);
+  await page.click("#solve");
+  await page.click("#algorithm-iddfs");
+  await expect(page.locator("#status")).toHaveText("Solution Playback · 1/2 · Byte down ↓");
+  await expect(page.locator("#victory")).toBeVisible({ timeout: 5000 });
+  await expect(page.locator("#actual")).toHaveText("2");
 });
 
 test("U-14–17 · budget, exhaustion and stale Hint", async ({ page }) => {
