@@ -10,6 +10,7 @@ import { showConfetti } from "./ui/confetti.js";
 const byId = (id) => document.getElementById(id);
 const arrows = [...document.querySelectorAll("[data-direction]")];
 const help = byId("instructions");
+const algorithms = byId("algorithms");
 const victory = byId("victory");
 const confetti = victory.querySelector(".confetti");
 const advice = "Gunakan Hint untuk melihat satu langkah menuju dok.";
@@ -212,7 +213,12 @@ byId("new").onclick = byId("new-win").onclick = newChapter;
 byId("reset").onclick = byId("reset-key").onclick = reset;
 byId("retry").onclick = generate;
 byId("hint").onclick = () => assist(false);
-byId("solve").onclick = () => assist(true);
+byId("solve").onclick = () => algorithms.showModal();
+algorithms.querySelector(".close").onclick = () => algorithms.close();
+byId("algorithm-bfs").onclick = () => {
+  algorithms.close();
+  assist(true);
+};
 byId("undo").onclick = () => {
   if (locked()) return;
   interrupt();

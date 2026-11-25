@@ -66,6 +66,10 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await page.click("#hint");
   await expect(page.locator("#status")).toHaveText("Byte ke bawah ↓");
   await page.click("#solve");
+  await expect(page.locator("#algorithms")).toBeVisible();
+  await expect(page.locator("#algorithm-bfs")).toBeEnabled();
+  await expect(page.locator("#algorithms button:disabled")).toHaveCount(2);
+  await page.click("#algorithm-bfs");
   await expect(page.locator("#status")).toContainText("1/2 · Byte ke bawah");
   await expect(page.locator("#undo")).toBeDisabled();
   await expect(page.locator("#solve")).toBeDisabled();
@@ -114,6 +118,7 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await expect(page.locator("#dock")).toHaveText(dock);
   await expect(page.locator("#undo")).toBeDisabled();
   await page.click("#solve");
+  await page.click("#algorithm-bfs");
   await expect(page.locator("#victory")).toBeVisible();
   expect(await page.locator("#actual").textContent()).toBe(
     await page.locator("#optimal").textContent(),
@@ -124,6 +129,7 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await expect(page.locator("#target")).toContainText("Mint");
   await expect(page.locator("#minimum")).toHaveText("2");
   await page.click("#solve");
+  await page.click("#algorithm-bfs");
   await expect(page.locator("#status")).toContainText("1/2");
   await page.click("#new");
   await expect(page.locator("#robots button").first()).toBeEnabled();
@@ -201,11 +207,13 @@ test("Konfeti muncul setelah menang manual atau Solve dan dibersihkan saat lanju
   await expect(pieces).toHaveCount(0);
 
   await page.click("#solve");
+  await page.click("#algorithm-bfs");
   await expect(pieces.first()).toBeVisible();
   await page.click("#new-win");
   await expect(pieces).toHaveCount(0);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.click("#solve");
+  await page.click("#algorithm-bfs");
   await expect(page.locator("#victory")).toBeVisible();
   await expect(pieces).toHaveCount(0);
 });
@@ -390,6 +398,7 @@ test("All four robots turn before sliding, with the same timing for manual input
 
   await openFixture(page);
   await page.click("#solve");
+  await page.click("#algorithm-bfs");
   await expect(page.locator("#victory")).toBeVisible();
   expect(await page.evaluate(() => window.robotSlides.map(({ facing, duration }) => [facing, duration])))
     .toEqual([["down", 450], ["right", 450]]);

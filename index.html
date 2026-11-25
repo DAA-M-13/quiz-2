@@ -125,6 +125,25 @@
       </p>
       <button class="primary dismiss">Kembali bermain</button>
     </dialog>
+    <dialog id="algorithms" aria-labelledby="algorithm-title">
+      <button class="close" aria-label="Tutup">×</button>
+      <h2 id="algorithm-title">Pilih Algoritma</h2>
+      <p>Pilih algoritma untuk mencari solusi puzzle.</p>
+      <div class="algorithm-options">
+        <button id="algorithm-bfs" class="algorithm-option primary">
+          <strong>BFS</strong>
+          <small>Breadth-First Search</small>
+        </button>
+        <button class="algorithm-option" disabled>
+          <strong>DFS</strong>
+          <small>Depth-First Search · Coming Soon</small>
+        </button>
+        <button class="algorithm-option" disabled>
+          <strong>A*</strong>
+          <small>A-Star · Coming Soon</small>
+        </button>
+      </div>
+    </dialog>
     <dialog id="victory" aria-labelledby="win-title">
       <div class="confetti" aria-hidden="true"></div>
       <span class="winner-badge" aria-hidden="true"><img id="winner" width="46" height="46" alt="" /></span><small>
