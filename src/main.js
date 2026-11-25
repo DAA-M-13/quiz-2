@@ -1,6 +1,7 @@
 ﻿import { budgets, createSearch, runSearch } from "./algorithms/bfs.js";
 import { createSearch as createAstarSearch } from "./algorithms/astar.js";
 import { createSearch as createIddfsSearch } from "./algorithms/iddfs.js";
+import { sampleTrace } from "./algorithms/searchTrace.js";
 import { createChapter } from "./core/chapterGenerator.js";
 import { applyMove, startRound, undo } from "./core/gameState.js";
 import { loadChapter, prepareRound, saveChapter } from "./core/roundManager.js";
@@ -32,6 +33,8 @@ let pendingRound;
 function interrupt() {
   task.abort();
   task = new AbortController();
+  view.hideSearchOverlay();
+  if (game) view.render(game, locked());
   return task.signal;
 }
 
@@ -153,16 +156,42 @@ async function move(direction) {
 async function assist(animate, searchFactory = createSearch) {
   if (locked() || mode === "searching") return;
   const signal = interrupt();
+  const searchName =
+    searchFactory === createIddfsSearch
+      ? "IDDFS"
+      : searchFactory === createAstarSearch
+        ? "A* Search"
+        : "BFS";
   mode = "searching";
-  byId("status").textContent = "Search Exploration";
+  byId("status").textContent = animate
+    ? searchName + " is running…"
+    : "Search Exploration";
   render();
+  if (animate) view.showSearchOverlay(searchName + " is running…");
   const result = await runSearch(
     searchFactory(game.round, game.positions, { goal: game.round }),
     budgets.solution,
     signal,
   );
   if (signal.aborted) return;
+
+  const trace = animate ? sampleTrace(result.trace ?? [], 100) : [];
+  if (trace.length) {
+    mode = "animating";
+    render();
+    for (const [i, positions] of trace.entries()) {
+      if (signal.aborted) return;
+      const progress = searchName + " is running… (" + (i + 1) + "/" + trace.length + ")";
+      byId("status").textContent = progress;
+      view.showSearchOverlay(progress);
+      view.renderSearchPositions(positions);
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    }
+  }
+  if (signal.aborted) return;
+  if (animate) view.hideSearchOverlay();
   mode = "playing";
+  render();
   if (result.status !== "found") {
     byId("status").textContent =
       result.status === "limited"

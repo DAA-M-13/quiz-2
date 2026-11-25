@@ -69,6 +69,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
   const key = (p) => ((p[0] * 256 + p[1]) * 256 + p[2]) * 256 + p[3];
   const bestG = new Map([[key(initial), 0]]);
   const candidates = new Map();
+  const trace = goal ? [] : null;
   const openSet = createMinHeap();
 
   const h0 = heuristic(initial);
@@ -104,6 +105,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
     }
 
     expanded++;
+    if (trace) trace.push([...node.positions]);
 
     for (let robot = 0; robot < 4; robot++) {
       for (const direction of directions) {
@@ -165,7 +167,7 @@ export function createSearch(board, positions, { goal, previous } = {}) {
       while (status === "limited" && expanded < last && performance.now() < stop) {
         expand();
       }
-      return { status, path, candidates, expanded };
+      return { status, path, candidates, trace: trace ?? [], expanded };
     },
   };
 }

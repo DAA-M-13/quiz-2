@@ -156,6 +156,10 @@ test("IDDFS finds and plays the shortest solution", async ({ page }) => {
   await openFixture(page);
   await page.click("#solve");
   await page.click("#algorithm-iddfs");
+  await expect(page.locator("#search-overlay")).toBeVisible();
+  await expect(page.locator("#search-overlay")).toContainText(
+    "IDDFS is running",
+  );
   await expect(page.locator("#status")).toHaveText("Solution Playback · 1/2 · Byte down ↓");
   await expect(page.locator("#victory")).toBeVisible({ timeout: 5000 });
   await expect(page.locator("#actual")).toHaveText("2");

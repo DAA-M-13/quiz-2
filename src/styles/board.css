@@ -139,6 +139,23 @@
 #board .token:disabled {
   opacity: 1;
 }
+#search-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: #64727caa;
+  color: #fff;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 1px 3px #172b3a;
+  pointer-events: all;
+}
+#search-overlay[hidden] {
+  display: none;
+}
 @media (max-width: 800px) {
   .frame::after {
     left: auto;

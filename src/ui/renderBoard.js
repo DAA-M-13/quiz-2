@@ -24,6 +24,7 @@ function offset(cell, size) {
 
 export function createBoardView(select) {
   const board = document.querySelector("#board");
+  const searchOverlay = document.querySelector("#search-overlay");
   const choices = document.querySelector("#robots");
   let round;
   const tokens = [];
@@ -85,7 +86,7 @@ export function createBoardView(select) {
     marker.textContent = robots[target].symbol;
     marker.title = robots[target].name + " target tile";
     cells[dock].append(marker);
-    board.replaceChildren(...cells, ...tokens);
+    board.replaceChildren(...cells, ...tokens, searchOverlay);
     round = next;
   }
   return {
@@ -109,6 +110,19 @@ export function createBoardView(select) {
           control.setAttribute("aria-pressed", String(i === game.active));
         }
       });
+    },
+    renderSearchPositions(positions) {
+      robots.forEach((_, i) => {
+        Object.assign(tokens[i].style, offset(positions[i], round.size));
+        tokens[i].dataset.cell = positions[i];
+      });
+    },
+    showSearchOverlay(text) {
+      searchOverlay.textContent = text;
+      searchOverlay.hidden = false;
+    },
+    hideSearchOverlay() {
+      searchOverlay.hidden = true;
     },
     async animate(robot, direction, from, to, signal) {
       tokens[robot].dataset.facing = direction;
