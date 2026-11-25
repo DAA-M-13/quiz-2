@@ -13,6 +13,7 @@ const byId = (id) => document.getElementById(id);
 const arrows = [...document.querySelectorAll("[data-direction]")];
 const help = byId("instructions");
 const algorithms = byId("algorithms");
+const iddfsFailure = byId("iddfs-failure");
 const victory = byId("victory");
 const confetti = victory.querySelector(".confetti");
 const advice = "Use Hint to see the next move toward the target tile.";
@@ -168,6 +169,17 @@ async function assist(animate, searchFactory = createSearch) {
         ? "Search limit reached"
         : "No solution from this position";
     render();
+    if (searchFactory === createIddfsSearch) {
+      byId("iddfs-failure-title").textContent =
+        result.status === "limited"
+          ? "IDDFS reached its search limit"
+          : "IDDFS found no solution";
+      byId("iddfs-failure-message").textContent =
+        result.status === "limited"
+          ? "IDDFS repeats its depth-limited search, so it can use its time or state budget before finding a path. A solution may still exist; try BFS or A*."
+          : "IDDFS exhausted the reachable positions from here and found no path to the target.";
+      iddfsFailure.showModal();
+    }
     return;
   }
   const describe = (step) =>
@@ -217,6 +229,8 @@ byId("retry").onclick = generate;
 byId("hint").onclick = () => assist(false);
 byId("solve").onclick = () => algorithms.showModal();
 algorithms.querySelector(".close").onclick = () => algorithms.close();
+for (const button of iddfsFailure.querySelectorAll("button"))
+  button.onclick = () => iddfsFailure.close();
 
 byId("algorithm-bfs").onclick = () => {
   algorithms.close();
