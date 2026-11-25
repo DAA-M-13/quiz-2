@@ -1,4 +1,5 @@
 ﻿import { budgets, createSearch, runSearch } from "./algorithms/bfs.js";
+import { createSearch as createAstarSearch } from "./algorithms/astar.js";
 import { createChapter } from "./core/chapterGenerator.js";
 import { applyMove, startRound, undo } from "./core/gameState.js";
 import { loadChapter, prepareRound, saveChapter } from "./core/roundManager.js";
@@ -215,10 +216,16 @@ byId("retry").onclick = generate;
 byId("hint").onclick = () => assist(false);
 byId("solve").onclick = () => algorithms.showModal();
 algorithms.querySelector(".close").onclick = () => algorithms.close();
+
 byId("algorithm-bfs").onclick = () => {
   algorithms.close();
   assist(true);
 };
+byId("algorithm-astar").onclick = () => {
+  algorithms.close();
+  assist(true, createAstarSearch);
+};
+
 byId("undo").onclick = () => {
   if (locked()) return;
   interrupt();
