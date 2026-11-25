@@ -161,6 +161,22 @@ test("IDDFS finds and plays the shortest solution", async ({ page }) => {
   await expect(page.locator("#actual")).toHaveText("2");
 });
 
+test("IDDFS explains when its search budget is reached", async ({ page }) => {
+  await openFixture(page);
+  await setBudget(page, "solution", 0);
+  await page.click("#solve");
+  await page.click("#algorithm-iddfs");
+  await expect(page.locator("#iddfs-failure")).toBeVisible();
+  await expect(page.locator("#iddfs-failure-title")).toHaveText(
+    "IDDFS reached its search limit",
+  );
+  await expect(page.locator("#iddfs-failure-message")).toContainText(
+    "A solution may still exist",
+  );
+  await page.getByRole("button", { name: "Back to Game" }).click();
+  await expect(page.locator("#iddfs-failure")).not.toBeVisible();
+});
+
 test("U-14–17 · budget, exhaustion and stale Hint", async ({ page }) => {
   await openFixture(page);
   await setBudget(page, "solution", 1);
