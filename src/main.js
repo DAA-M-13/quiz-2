@@ -13,12 +13,12 @@ const help = byId("instructions");
 const algorithms = byId("algorithms");
 const victory = byId("victory");
 const confetti = victory.querySelector(".confetti");
-const advice = "Gunakan Hint untuk melihat satu langkah menuju dok.";
+const advice = "Use Hint to see the next move toward the target tile.";
 const directionName = {
-  up: "atas ↑",
-  right: "kanan →",
-  down: "bawah ↓",
-  left: "kiri ←",
+  up: "up ↑",
+  right: "right →",
+  down: "down ↓",
+  left: "left ←",
 };
 const view = createBoardView(select);
 let game;
@@ -49,16 +49,15 @@ function render() {
   const { round } = game;
   const target = robots[round.target];
   view.render(game, disabled);
-  byId("round").textContent = "Ronde " + String(round.number).padStart(2, "0");
-  byId("target").textContent = "Antarkan " + target.name + " ke dok";
+  byId("round").textContent = "Round " + String(round.number).padStart(2, "0");
+  byId("target").textContent = "Target robot: " + target.name + " " + target.symbol;
   byId("dock").textContent =
-    "Berhenti tepat di dok " + target.color + " " + target.symbol + ".";
-  byId("help-goal").textContent =
-    byId("target").textContent + " " + target.color + " " + target.symbol + ".";
+    "Stop the " + target.color + " robot on its target tile.";
+  byId("help-goal").textContent = byId("dock").textContent;
   document
     .querySelector(".objective")
     .style.setProperty("--accent", target.accent);
-  byId("active").textContent = "Gerakkan " + robots[game.active].name;
+  byId("active").textContent = "Move " + robots[game.active].name;
   byId("moves").textContent = game.history.length;
   byId("minimum").textContent = round.minimum;
 }
@@ -76,7 +75,7 @@ async function generate() {
   const signal = interrupt();
   mode = "generating";
   byId("retry").hidden = true;
-  byId("status").textContent = "Mencari dok untuk ronde baru…";
+  byId("status").textContent = "Finding a target tile for the new round…";
   render();
   const result = await pendingRound(signal);
   if (signal.aborted) return;
@@ -84,8 +83,8 @@ async function generate() {
     const exhausted = result.status === "exhausted";
     byId("retry").hidden = exhausted;
     byId("status").textContent = exhausted
-      ? "Tidak ada kandidat dok. Pilih New Game."
-      : "Pencarian belum selesai. Coba lagi atau pilih New Game.";
+      ? "No reachable target tile is available. Choose New Game."
+      : "Search limit reached. Choose Try Again or New Game.";
     return;
   }
   if (result.round.number === 1) saveChapter(result.round);
@@ -120,8 +119,8 @@ function afterMove() {
   byId("winner").src = robots[round.target].image;
   byId("summary").textContent =
     robots[round.target].name +
-    " berhenti tepat di dok." +
-    (history.length === round.minimum ? " Solusi optimal!" : "");
+    " stopped on its target tile." +
+    (history.length === round.minimum ? " Optimal solution!" : "");
   byId("actual").textContent = history.length;
   byId("optimal").textContent = round.minimum;
   victory.showModal();
@@ -152,7 +151,7 @@ async function assist(animate) {
   if (locked() || mode === "searching") return;
   const signal = interrupt();
   mode = "searching";
-  byId("status").textContent = "Mencari jalur terpendek…";
+  byId("status").textContent = "Search Exploration";
   render();
   const result = await runSearch(
     createSearch(game.round, game.positions, { goal: game.round }),
@@ -164,13 +163,13 @@ async function assist(animate) {
   if (result.status !== "found") {
     byId("status").textContent =
       result.status === "limited"
-        ? "Pencarian belum selesai"
-        : "Tidak ada solusi dari posisi ini";
+        ? "Search limit reached"
+        : "No solution from this position";
     render();
     return;
   }
   const describe = (step) =>
-    robots[step.robot].name + " ke " + directionName[step.direction];
+    robots[step.robot].name + " " + directionName[step.direction];
   if (!animate) {
     byId("status").textContent = describe(result.path[0]);
     render();
@@ -179,7 +178,7 @@ async function assist(animate) {
   for (const [i, step] of result.path.entries()) {
     const end = slide(game.round, game.positions, step.robot, step.direction);
     byId("status").textContent =
-      i + 1 + "/" + result.path.length + " · " + describe(step);
+      "Solution Playback · " + (i + 1) + "/" + result.path.length + " · " + describe(step);
     if (!(await playSlide(step.robot, step.direction, end, signal))) return;
   }
   mode = "playing";
@@ -188,9 +187,10 @@ async function assist(animate) {
 
 byId("help").onclick = () => {
   if (mode === "searching" || mode === "animating") {
+    const message = mode === "searching" ? "Search canceled." : "Animation canceled.";
     interrupt();
     mode = "playing";
-    byId("status").textContent = advice;
+    byId("status").textContent = message;
     render();
   }
   help.showModal();

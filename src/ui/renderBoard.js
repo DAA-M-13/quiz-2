@@ -3,10 +3,10 @@
   import: "default",
 });
 export const robots = [
-  ["Ruby", "merah", "●", "#e26464"],
-  ["Mint", "hijau", "▲", "#53aa88"],
-  ["Volt", "kuning", "◆", "#e5b85c"],
-  ["Byte", "biru", "■", "#568eca"],
+  ["Ruby", "red", "●", "#e26464"],
+  ["Mint", "green", "▲", "#53aa88"],
+  ["Volt", "yellow", "◆", "#e5b85c"],
+  ["Byte", "blue", "■", "#568eca"],
 ].map(([name, color, symbol, accent]) => ({
   name,
   color,
@@ -76,14 +76,14 @@ export function createBoardView(select) {
       const block = document.createElement("div");
       block.className = "center-block";
       block.setAttribute("role", "img");
-      block.setAttribute("aria-label", "Rintangan tengah, baris 8–9 dan kolom 8–9");
+      block.setAttribute("aria-label", "Center obstacle, rows 8–9 and columns 8–9");
       cells[next.blockedCells[0]].append(block);
     }
     const marker = document.createElement("span");
     marker.className = "dock";
     marker.style.setProperty("--accent", robots[target].accent);
     marker.textContent = robots[target].symbol;
-    marker.title = "Dok " + robots[target].name;
+    marker.title = robots[target].name + " target tile";
     cells[dock].append(marker);
     board.replaceChildren(...cells, ...tokens);
     round = next;
@@ -99,9 +99,9 @@ export function createBoardView(select) {
         tokens[i].setAttribute(
           "aria-label",
           robot.name +
-            ", baris " +
+            ", row " +
             (1 + Math.floor(cell / round.size)) +
-            ", kolom " +
+            ", column " +
             (1 + (cell % round.size)),
         );
         for (const control of [tokens[i], buttons[i]]) {

@@ -6,10 +6,10 @@ const dock = 11;
 const target = 0;
 const wall = [12, 20];
 const robots = [
-  { name: "Hijau", symbol: "H", color: "green" },
-  { name: "Biru", symbol: "B", color: "blue" },
-  { name: "Kuning", symbol: "K", color: "yellow" },
-  { name: "Merah", symbol: "M", color: "red" }
+  { name: "Green", symbol: "G", color: "green" },
+  { name: "Blue", symbol: "B", color: "blue" },
+  { name: "Yellow", symbol: "Y", color: "yellow" },
+  { name: "Red", symbol: "R", color: "red" }
 ];
 const directions = {
   up: [-1, 0],
@@ -37,6 +37,8 @@ const board = document.querySelector("#board");
 const choices = document.querySelector("#robots");
 const movesLabel = document.querySelector("#moves");
 const status = document.querySelector("#status");
+document.querySelector("#objective").textContent =
+  `Stop the ${robots[target].color} robot on its target tile.`;
 const arrows = document.querySelectorAll("[data-direction]");
 let positions = [...initial];
 let active = target;
@@ -48,7 +50,7 @@ const cells = Array.from({ length: size * size }, (_, index) => {
   cell.className = "cell";
   if (index === dock) {
     cell.classList.add("dock");
-    cell.title = "Dok hijau";
+    cell.title = `${robots[target].name} target tile`;
   }
   if (index === wall[0]) cell.classList.add("wall");
   board.append(cell);
@@ -85,14 +87,14 @@ function render() {
     selectors[index].setAttribute("aria-pressed", selected);
     const row = Math.floor(cell / size) + 1;
     const col = cell % size + 1;
-    const targetLabel = index === target ? ", target" : "";
-    token.setAttribute("aria-label", `Robot ${robots[index].name}${targetLabel}, baris ${row}, kolom ${col}`);
+    const targetLabel = index === target ? ", target robot" : "";
+    token.setAttribute("aria-label", `${robots[index].name} robot${targetLabel}, row ${row}, column ${col}`);
   });
   if (focusedToken !== -1 && document.activeElement !== tokens[focusedToken]) {
     tokens[focusedToken].focus({ preventScroll: true });
   }
   movesLabel.textContent = moves;
-  status.textContent = won ? `Menang dalam ${moves} gerakan!` : "";
+  status.textContent = won ? `Target tile reached in ${moves} moves!` : "";
   arrows.forEach(button => { button.disabled = won; });
 }
 

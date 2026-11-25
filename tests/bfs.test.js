@@ -25,7 +25,7 @@ test("U-02, U-04, U-08, U-14: blocked input, limited search and two-move optimum
   assert.deepEqual(game.positions, [8, 12, 56, 63]);
 });
 
-test("U-03: crossing the dock or parking another robot on it keeps play active", () => {
+test("U-03: crossing the target tile or parking another robot on it keeps play active", () => {
   const game = startRound(fixture);
   applyMove(game, 0, "right");
   assert.equal(game.won, false);

@@ -5,7 +5,7 @@ import { createSearch } from "../src/algorithms/bfs.js";
 import { slide } from "../src/core/movement.js";
 import { exampleBoard } from "./fixtures/exampleBoard.js";
 
-test("Kotak tengah menutup empat petak untuk gerakan, posisi awal, dan dok BFS", () => {
+test("The center obstacle excludes four cells from slides, starting positions and BFS target tiles", () => {
   const chapter = createChapter(() => 0.47);
   assert.deepEqual(chapter.blockedCells, [119, 120, 135, 136]);
   assert.ok(chapter.positions.every(cell => !chapter.blockedCells.includes(cell)));
@@ -24,18 +24,18 @@ test("Kotak tengah menutup empat petak untuk gerakan, posisi awal, dan dok BFS",
   for (const { dock } of candidates.values()) assert.ok(!chapter.blockedCells.includes(dock));
 });
 
-test("Hijau melintasi dok saat jalur kanan kosong", () => {
+test("Green crosses the target tile when the path to the right is clear", () => {
   assert.equal(slide(exampleBoard, exampleBoard.positions, 0, "right"), 15);
 });
 
-test("Dinding menghentikan biru, lalu biru menahan hijau di dok", () => {
+test("The wall stops blue, then blue stops green on the target tile", () => {
   const positions = [...exampleBoard.positions];
   positions[1] = slide(exampleBoard, positions, 1, "down");
   assert.equal(positions[1], 12);
   assert.equal(slide(exampleBoard, positions, 0, "right"), exampleBoard.dock);
 });
 
-test("Dinding berlaku dua arah dan robot berhenti di batas papan", () => {
+test("Walls block both directions and robots stop at the board edge", () => {
   const positions = [8, 20, 56, 63];
   assert.equal(slide(exampleBoard, positions, 1, "up"), 20);
   assert.equal(slide(exampleBoard, positions, 0, "left"), 8);

@@ -266,7 +266,7 @@
         "hint": {
           "status": "found",
           "expanded": 156,
-          "ms": 0.6
+          "ms": 0.7
         },
         "solve": {
           "status": "found",
@@ -277,17 +277,17 @@
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 3.8
+        "ms": 3.2
       },
       "hint": {
         "status": "found",
         "expanded": 337,
-        "ms": 1.4
+        "ms": 2.1
       },
       "solve": {
         "status": "found",
         "expanded": 337,
-        "ms": 1.5
+        "ms": 1
       },
       "path": [
         {
@@ -561,7 +561,7 @@
         "hint": {
           "status": "found",
           "expanded": 96,
-          "ms": 0.1
+          "ms": 0.2
         },
         "solve": {
           "status": "found",
@@ -572,17 +572,17 @@
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 3
+        "ms": 3.5
       },
       "hint": {
         "status": "found",
         "expanded": 239,
-        "ms": 0.4
+        "ms": 0.7
       },
       "solve": {
         "status": "found",
         "expanded": 239,
-        "ms": 0.8
+        "ms": 1.2
       },
       "path": [
         {
@@ -848,28 +848,28 @@
         "hint": {
           "status": "found",
           "expanded": 4861,
-          "ms": 12
+          "ms": 12.5
         },
         "solve": {
           "status": "found",
           "expanded": 4861,
-          "ms": 11.3
+          "ms": 12.4
         }
       },
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 3.3
+        "ms": 2.7
       },
       "hint": {
         "status": "found",
         "expanded": 75,
-        "ms": 0.5
+        "ms": 0.2
       },
       "solve": {
         "status": "found",
         "expanded": 75,
-        "ms": 0.4
+        "ms": 0.3
       },
       "path": [
         {
@@ -1131,28 +1131,28 @@
         "hint": {
           "status": "found",
           "expanded": 210,
-          "ms": 0.5
+          "ms": 0.7
         },
         "solve": {
           "status": "found",
           "expanded": 210,
-          "ms": 0.4
+          "ms": 0.6
         }
       },
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 1.9
+        "ms": 2.4
       },
       "hint": {
         "status": "found",
         "expanded": 576,
-        "ms": 1.1
+        "ms": 1.2
       },
       "solve": {
         "status": "found",
         "expanded": 576,
-        "ms": 1.2
+        "ms": 1.8
       },
       "path": [
         {
@@ -1426,28 +1426,28 @@
         "hint": {
           "status": "found",
           "expanded": 154,
-          "ms": 0.2
+          "ms": 0.3
         },
         "solve": {
           "status": "found",
           "expanded": 154,
-          "ms": 0.2
+          "ms": 0.1
         }
       },
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 2.2
+        "ms": 2.5
       },
       "hint": {
         "status": "found",
         "expanded": 307,
-        "ms": 1.8
+        "ms": 1.7
       },
       "solve": {
         "status": "found",
         "expanded": 307,
-        "ms": 0.5
+        "ms": 0.4
       },
       "path": [
         {
@@ -1722,13 +1722,13 @@
         "solve": {
           "status": "found",
           "expanded": 42,
-          "ms": 0
+          "ms": 0.1
         }
       },
       "generation": {
         "status": "limited",
         "expanded": 900,
-        "ms": 3.3
+        "ms": 1.9
       },
       "hint": {
         "status": "found",

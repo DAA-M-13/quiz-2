@@ -48,6 +48,9 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await openFixture(page);
+  await expect(page).toHaveTitle("FrostBound Bots");
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("#dock")).toHaveText("Stop the green robot on its target tile.");
   await expect(page.locator(".cell")).toHaveCount(256);
   await page.keyboard.press("ArrowLeft");
   await count(page, 0);
@@ -57,6 +60,8 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   await count(page, 1);
   await expect(page.locator("#victory")).not.toBeVisible();
   await page.click("#help");
+  await expect(page.locator("#help-title")).toHaveText("How to Play");
+  await expect(page.locator("#instructions")).toContainText("Use the other robots to help the target robot stop on its target tile.");
   await page.keyboard.press("ArrowLeft");
   await page.click(".dismiss");
   await count(page, 1);
@@ -64,13 +69,14 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   expect(await cells(page)).toEqual(round.positions);
 
   await page.click("#hint");
-  await expect(page.locator("#status")).toHaveText("Byte ke bawah ↓");
+  await expect(page.locator("#status")).toHaveText("Byte down ↓");
   await page.click("#solve");
   await expect(page.locator("#algorithms")).toBeVisible();
+  await expect(page.locator("#algorithm-title")).toHaveText("Choose a Search Algorithm");
   await expect(page.locator("#algorithm-bfs")).toBeEnabled();
   await expect(page.locator("#algorithms button:disabled")).toHaveCount(2);
   await page.click("#algorithm-bfs");
-  await expect(page.locator("#status")).toContainText("1/2 · Byte ke bawah");
+  await expect(page.locator("#status")).toHaveText("Solution Playback · 1/2 · Byte down ↓");
   await expect(page.locator("#undo")).toBeDisabled();
   await expect(page.locator("#solve")).toBeDisabled();
   await page.keyboard.press("ArrowRight");
@@ -82,12 +88,12 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
 
   await page.click("#robots button:nth-child(4)");
   await page.keyboard.press("1");
-  await expect(page.locator("#active")).toHaveText("Gerakkan Ruby");
+  await expect(page.locator("#active")).toHaveText("Move Ruby");
   await page.keyboard.press("4");
   await page.click("[data-direction=down]");
   await count(page, 1);
   await page.click("#hint");
-  await expect(page.locator("#status")).toHaveText("Mint ke kanan →");
+  await expect(page.locator("#status")).toHaveText("Mint right →");
   await expect(page.locator("#minimum")).toHaveText("2");
   await page.locator(".token").nth(1).click();
   await page.keyboard.press("ArrowRight");
@@ -101,14 +107,16 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
   expect(await cells(page)).toEqual(end);
   await setBudget(page, "generation", 900);
   await page.click("#retry");
-  await expect(page.locator("#round")).toHaveText("Ronde 02");
+  await expect(page.locator("#round")).toHaveText("Round 02");
   expect(await cells(page)).toEqual(end);
   expect(await page.locator(".east,.south").count()).toBe(walls);
   await count(page, 0);
   await expect(page.locator("#undo")).toBeDisabled();
   const minimum = await page.locator("#minimum").textContent();
   const dock = await page.locator("#dock").textContent();
-  await page.keyboard.press("4");
+  // Move a supporting robot so this reset check cannot win the random round.
+  const targetLabel = await page.locator("#target").textContent();
+  await page.keyboard.press(targetLabel.includes("Byte") ? "1" : "4");
   await page.keyboard.press("ArrowUp");
   await count(page, 1);
   await page.click("#reset");
@@ -124,7 +132,7 @@ test("U-01–12, U-16–17 · controls, dialogs, retry, animation and chapter li
     await page.locator("#optimal").textContent(),
   );
   await page.reload();
-  await expect(page.locator("#round")).toHaveText("Ronde 01");
+  await expect(page.locator("#round")).toHaveText("Round 01");
   expect(await cells(page)).toEqual(round.positions);
   await expect(page.locator("#target")).toContainText("Mint");
   await expect(page.locator("#minimum")).toHaveText("2");
@@ -148,11 +156,11 @@ test("U-14–17 · budget, exhaustion and stale Hint", async ({ page }) => {
   await openFixture(page);
   await setBudget(page, "solution", 1);
   await page.click("#hint");
-  await expect(page.locator("#status")).toHaveText("Pencarian belum selesai");
+  await expect(page.locator("#status")).toHaveText("Search limit reached");
   await count(page, 0);
   await setBudget(page, "solution", 1000);
   await page.click("#hint");
-  await expect(page.locator("#status")).toHaveText("Byte ke bawah ↓");
+  await expect(page.locator("#status")).toHaveText("Byte down ↓");
 
   // A move in the same turn invalidates even a search just about to publish.
   await page.evaluate(() => {
@@ -160,7 +168,7 @@ test("U-14–17 · budget, exhaustion and stale Hint", async ({ page }) => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight" }));
   });
   await count(page, 1);
-  await expect(page.locator("#status")).not.toHaveText("Byte ke bawah ↓");
+  await expect(page.locator("#status")).not.toHaveText("Byte down ↓");
   const trapped = {
     ...round,
     target: 1,
@@ -182,13 +190,13 @@ test("U-14–17 · budget, exhaustion and stale Hint", async ({ page }) => {
   await openFixture(page, trapped);
   await page.click("#hint");
   await expect(page.locator("#status")).toHaveText(
-    "Tidak ada solusi dari posisi ini",
+    "No solution from this position",
   );
   await page.click("#reset");
   await count(page, 0);
 });
 
-test("Konfeti muncul setelah menang manual atau Solve dan dibersihkan saat lanjut", async ({ page }) => {
+test("Confetti appears after a manual or automatic win and clears on the next round", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await openFixture(page);
   const pieces = page.locator("#victory .confetti i");
@@ -234,6 +242,23 @@ test("U-12 · mobile touch selection and single movement", async ({
   await count(page, 1);
   await page.locator("[data-direction=down]").tap();
   await count(page, 1);
+  await page.getByRole("button", { name: "How to Play" }).tap();
+  await expect(page.locator("#help-goal")).toHaveText("Stop the green robot on its target tile.");
+  await page.getByRole("button", { name: "Back to Game" }).tap();
+  await page.getByRole("button", { name: "Hint", exact: true }).tap();
+  await expect(page.locator("#status")).toHaveText("Mint right →");
+  await page.getByRole("button", { name: "Solve", exact: true }).tap();
+  await expect(page.locator("#algorithm-bfs")).toHaveText("Breadth-First Search (BFS)");
+  for (const selector of ["#algorithms", "#algorithm-title", ".algorithm-options", ".algorithm-option"]) {
+    expect(await page.locator(selector).evaluateAll(elements =>
+      elements.every(element => element.scrollWidth <= element.clientWidth + 1))).toBe(true);
+  }
+  await page.locator("#algorithm-bfs").tap();
+  await expect(page.locator("#summary")).toHaveText("Mint stopped on its target tile. Optimal solution!");
+  await page.getByRole("button", { name: "Next Round" }).tap();
+  await expect(page.locator("#round")).toHaveText("Round 02");
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: "evaluation/gameplay-mobile.png", fullPage: true });
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
