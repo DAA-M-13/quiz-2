@@ -1,0 +1,169 @@
+﻿.frame {
+  position: relative;
+  background: linear-gradient(#eef6f8 0 2%, #b9d8e5 4%, #8ba8b8 95%, #739baf);
+  padding: 4%;
+  border: clamp(4px, 0.5vw, 8px) solid #385563;
+  border-radius: 2.6%;
+  box-shadow:
+    0 5px 0 #172b3a,
+    0 9px 15px #172b3a30;
+}
+.frame::before,
+.frame::after {
+  content: "";
+  position: absolute;
+  width: 16%;
+  aspect-ratio: 128/47;
+  background: url("../assets/ornaments/glacier.svg") center/contain no-repeat;
+  pointer-events: none;
+}
+.frame::before {
+  right: 0;
+  bottom: 100%;
+}
+.frame::after {
+  left: 98%;
+  bottom: 5%;
+}
+.grid-wrap {
+  position: relative;
+}
+.axis {
+  position: absolute;
+  display: grid;
+  font:
+    clamp(6px, 0.65vw, 10px) "Manrope Variable",
+    sans-serif;
+  text-align: center;
+}
+.cols {
+  bottom: 100%;
+  width: 100%;
+  grid-template-columns: repeat(16, 1fr);
+}
+.rows {
+  right: 100%;
+  height: 100%;
+  width: 4%;
+  grid-template-rows: repeat(16, 1fr);
+  align-items: center;
+}
+.board-size {
+  position: absolute;
+  right: 4%;
+  bottom: 0.1%;
+  font-size: clamp(6px, 0.6vw, 10px);
+}
+#board {
+  display: grid;
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+  grid-template-rows: repeat(16, minmax(0, 1fr));
+  aspect-ratio: 1;
+  position: relative;
+  border: 3px solid var(--ink);
+  border-radius: 4px;
+  background: #c5dfe8;
+  isolation: isolate;
+}
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: url("../assets/ornaments/tile.png") center/100% 100%;
+  box-shadow: inset -1px -1px #8ba8b8;
+}
+.cell:nth-child(3n) {
+  background-blend-mode: multiply;
+  background-color: #f1f8fa;
+}
+.cell.east::after,
+.cell.south::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.cell.east::after {
+  right: 0;
+  height: 100%;
+  width: 17.86%;
+  background-image: url("../assets/ornaments/ridge-vertical.svg");
+}
+.cell.south::before {
+  bottom: 0;
+  width: 100%;
+  height: 17.86%;
+  background-image: url("../assets/ornaments/ridge-horizontal.svg");
+}
+.dock {
+  width: 78%;
+  height: 78%;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--accent);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--accent);
+  font-size: clamp(8px, 1.2vw, 19px);
+  line-height: 1;
+}
+.center-block {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 200%;
+  height: 200%;
+  z-index: 1;
+  pointer-events: none;
+  background: url("../assets/ornaments/center-ice.svg") center / 100% 100% no-repeat;
+}
+#board .token {
+  position: absolute;
+  z-index: 2;
+  width: 6.25%;
+  height: 6.25%;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background-color: transparent;
+  background-size: 90%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: none;
+}
+#board .token[aria-pressed="true"] {
+  border-color: var(--ink);
+}
+#board .token:disabled {
+  opacity: 1;
+}
+@media (max-width: 800px) {
+  .frame::after {
+    left: auto;
+    right: -2%;
+    bottom: -3%;
+    width: 13%;
+  }
+}
+
+#board .token img {
+  display: block;
+  width: 96%;
+  height: 96%;
+  margin: auto;
+  object-fit: contain;
+}
+.cell:nth-child(7n + 2) {
+  background-image:
+    linear-gradient(135deg, transparent 79%, #ffffff55 80%, transparent 82%),
+    url("../assets/ornaments/tile.png");
+  background-size:
+    82% 88%,
+    100% 100%;
+  background-repeat: no-repeat;
+}
+#board .token[data-facing="up"] img { transform: rotate(180deg); }
+#board .token[data-facing="right"] img { transform: rotate(-90deg); }
+#board .token[data-facing="left"] img { transform: rotate(90deg); }

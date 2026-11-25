@@ -1,0 +1,144 @@
+﻿<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robot Seluncur</title>
+    <link rel="icon" href="/src/assets/robots/header.png" />
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img class="logo" src="/src/assets/robots/header.png" alt="" />
+        <div>
+          <h1>Robot Seluncur</h1>
+          <small>Puzzle seluncur es</small>
+        </div>
+        <span class="single">Satu pemain</span>
+        <nav>
+          <button id="help">How to Play</button
+          ><button id="new" class="primary">New Game</button>
+        </nav>
+      </header>
+      <div class="layout">
+        <section class="play">
+          <div class="board-title">
+            <b id="round">Ronde 01</b><small>Main Bebas</small>
+          </div>
+          <div class="frame">
+            <div class="grid-wrap">
+              <div class="axis cols"></div>
+              <div class="axis rows"></div>
+              <div id="board" aria-label="Papan Main Bebas 16 × 16"></div>
+            </div>
+            <small class="board-size">16 × 16</small>
+          </div>
+          <p class="foot">
+            Pilih robot dengan angka 1–4 · Gerakkan dengan tombol panah
+          </p>
+        </section>
+        <section class="panel" aria-label="Kontrol permainan">
+          <small>Tujuan ronde</small>
+          <div class="objective">
+            <h2 id="target">Menyiapkan ronde…</h2>
+            <p id="dock"></p>
+          </div>
+          <div class="stats">
+            <div><small>Gerakanmu</small><strong id="moves">0</strong></div>
+            <div>
+              <small>Minimum ronde</small><strong id="minimum">–</strong>
+            </div>
+          </div>
+          <div class="section-label">
+            <h3>Pilih robot</h3>
+            <small>Klik atau tekan 1–4</small>
+          </div>
+          <div id="robots"></div>
+          <h3 id="active">Gerakkan robot</h3>
+          <small>Satu tekanan, satu gerakan</small>
+          <div class="steer">
+            <div id="directions">
+              <button data-direction="up" aria-label="Atas">↑</button
+              ><button data-direction="left" aria-label="Kiri">←</button>
+              <button
+                id="reset-key"
+                title="Ulangi Ronde (R)"
+                aria-label="Ulangi Ronde"
+              >
+                R</button
+              ><button data-direction="right" aria-label="Kanan">→</button
+              ><button data-direction="down" aria-label="Bawah">↓</button>
+            </div>
+            <div>
+              <h3>Langkah berikutnya</h3>
+              <p id="status" role="status">
+                Gunakan Hint untuk melihat satu langkah menuju dok.
+              </p>
+              <button hidden id="retry">Coba lagi</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="hint">Hint</button
+            ><button id="solve" class="primary">Solve</button>
+            <small>Tampilkan robot dan arah</small
+            ><small>Putar solusi dengan animasi</small
+            ><button id="undo">Undo</button
+            ><button id="reset">Ulangi Ronde</button>
+          </div>
+        </section>
+      </div>
+    </main>
+    <dialog id="instructions" aria-labelledby="help-title">
+      <button class="close" aria-label="Tutup">×</button>
+      <h2 id="help-title">How to Play</h2>
+      <p id="help-goal"></p>
+      <ol>
+        <li>
+          <b>Pilih robot</b>
+          <p>Klik robot di papan atau daftar, atau tekan angka 1–4.</p>
+        </li>
+        <li>
+          <b>Meluncur ke satu arah</b>
+          <p>
+            Gunakan tombol panah. Robot berhenti di depan dinding, tepi papan,
+            atau robot lain. Pakai robot lain sebagai rem.
+          </p>
+        </li>
+        <li>
+          <b>Berhenti tepat di dok</b>
+          <p>
+            Antarkan robot target ke dok. Minimum ronde adalah jumlah gerakan
+            terpendek dari posisi awal ronde.
+          </p>
+        </li>
+      </ol>
+      <p>
+        Hint memberi langkah berikutnya. Solve memutar solusi dari posisi
+        sekarang. Undo membatalkan satu gerakan. Ulangi Ronde mengembalikan
+        posisi awal ronde.
+      </p>
+      <p>
+        Next Round meneruskan papan dari posisi akhir. New Game mengacak papan
+        baru.
+      </p>
+      <button class="primary dismiss">Kembali bermain</button>
+    </dialog>
+    <dialog id="victory" aria-labelledby="win-title">
+      <div class="confetti" aria-hidden="true"></div>
+      <span class="winner-badge" aria-hidden="true"><img id="winner" width="46" height="46" alt="" /></span><small>
+        Ronde selesai</small
+      >
+      <h2 id="win-title">Robot sampai di dok!</h2>
+      <p id="summary"></p>
+      <div class="stats">
+        <div><small>Gerakanmu</small><strong id="actual"></strong></div>
+        <div><small>Minimum ronde</small><strong id="optimal"></strong></div>
+      </div>
+      <button id="next" class="primary">Next Round</button
+      ><button id="new-win">New Game</button>
+    </dialog>
+  </body>
+</html>
+

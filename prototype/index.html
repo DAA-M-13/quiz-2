@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Robot Seluncur</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="game.js"></script>
+</head>
+<body>
+  <main>
+    <h1>Robot Seluncur</h1>
+    <p>Pilih robot dan arahkan agar robot hijau berhenti tepat di dok.</p>
+    <div class="layout">
+      <div id="board" aria-label="Papan 8 kali 8"></div>
+      <section aria-label="Kontrol permainan">
+        <p class="counter">Gerakanmu <strong id="moves">0</strong></p>
+        <div id="robots" aria-label="Pilihan robot" role="group"></div>
+        <div id="directions" aria-label="Arah gerakan" role="group">
+          <button data-direction="up" aria-label="Atas">↑</button>
+          <button data-direction="left" aria-label="Kiri">←</button>
+          <button data-direction="down" aria-label="Bawah">↓</button>
+          <button data-direction="right" aria-label="Kanan">→</button>
+        </div>
+        <p class="help">Keyboard memakai angka 1–4 untuk memilih dan tombol panah untuk bergerak.</p>
+        <button id="reset">Ulangi Puzzle</button>
+        <p id="status" role="status"></p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
