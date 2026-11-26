@@ -1,36 +1,76 @@
-# FrostBound Bots
+﻿# FrostBound Bots
 
-FrostBound Bots is a single-player ice-sliding puzzle. Guide the target robot onto its matching target tile in as few moves as possible. Each chapter starts with a random 16 × 16 board and four robots: Ruby (red), Mint (green), Volt (yellow), and Byte (blue).
+FrostBound Bots adalah game puzzle satu pemain di papan es 16 × 16. Tujuannya membawa robot yang ditentukan ke petak target dengan jumlah langkah sesedikit mungkin. Ada empat robot yang dapat digerakkan, yaitu Ruby (merah), Mint (hijau), Volt (kuning), dan Byte (biru). Robot lain bisa diposisikan sebagai penghalang agar robot target berhenti di petak yang tepat.
 
-## Run the game
+## Menjalankan proyek
 
-From the project directory, install dependencies with `npm ci` and start Vite with `npm run dev`. Open the local URL printed in the terminal. Use `npm run build` to build the production site and `npm run preview` to serve that build locally.
+```sh
+npm ci
+npm run dev
+```
 
-## How to Play
+Buka URL lokal yang dicetak Vite di terminal. Gunakan `npm run build` untuk membuat build produksi dan `npm run preview` untuk membukanya secara lokal.
 
-1. Read the round objective to identify the target robot and its tile. Click or tap any robot on the board or in the list, or press **1–4**.
-2. Choose a direction with the keyboard arrows or the on-screen arrows. Robots slide until they hit a wall, the edge of the board, or another robot. Use the other robots to help the target robot stop on its target tile.
-3. Each successful slide adds one to **Your Moves**, regardless of distance or robot. Crossing the tile is allowed. The round ends only when the target robot stops on it. **Minimum Moves** is measured from the start of the round.
+## Cara bermain
 
-| Control | What it does |
-|---|---|
-| Hint | Shows the first robot and direction on a shortest path from the current positions. |
-| Solve | Opens **Choose a Search Algorithm**. Select BFS, IDDFS, or A* to animate up to 100 sampled positions visited during **Search Exploration**, then watch the solution during **Solution Playback**. |
-| Undo | Takes back one completed move. |
-| Restart Round (R) | Restores the positions at the start of this round and clears move history. |
-| Next Round | Starts from the four final positions on the same board with a new target robot–tile pair. |
-| New Game | Generates a new chapter. |
+Pilih robot dengan klik, sentuhan, atau tombol **1–4**, lalu gerakkan dengan tombol panah atau kontrol di layar. Robot meluncur lurus sampai terhalang dinding, tepi papan, petak es yang tertutup, atau robot lain. Satu luncuran yang mengubah posisi dihitung sebagai satu langkah. Ronde selesai saat robot target **berhenti** di petak target.
 
-Refreshing the page restores the first round of the active chapter, including its target tile and minimum. Chapters saved by earlier versions are supported on the same browser origin. The standalone 8 × 8 prototype in `prototype/index.html` demonstrates the two-move test puzzle.
+| Kontrol | Fungsi |
+| --- | --- |
+| **Hint** | Menampilkan robot dan arah untuk langkah pertama pada salah satu solusi terpendek dari posisi sekarang. |
+| **Solve** | Menjalankan BFS, IDDFS, atau A*, lalu menampilkan eksplorasi dan memutar ulang solusi jika ditemukan. |
+| **Undo** | Membatalkan satu langkah terakhir. |
+| **Restart Round (R)** | Mengembalikan posisi robot ke awal ronde dan mengosongkan riwayat langkah. |
+| **Next Round** | Memulai ronde berikutnya di papan yang sama dari posisi akhir keempat robot, dengan target baru. |
+| **New Game** | Membuat chapter dengan papan dan posisi awal baru. |
 
-## Search and verification
+**Your Moves** menghitung langkah pemain pada ronde berjalan. **Minimum Moves** menunjukkan panjang solusi terpendek dari posisi awal ronde. Memuat ulang halaman mengembalikan ronde pertama chapter yang tersimpan di browser.
 
-| Algorithm in the Solve menu | Status | How it searches |
-|---|---|---|
-| Breadth-First Search (BFS) | Available | Uses the same slide rules as the player and explores robot positions in increasing move count. The first solution found takes the fewest moves. |
-| Iterative Deepening Depth-First Search (IDDFS) | Available | Repeats a depth-first search with an increasing move limit, looking for a one-move solution first, then a two-move solution, and so on. |
-| A* Search | Unavailable | Prioritizes positions by adding the moves already taken to an estimate of the moves still needed to reach the target tile. |
+## Pemodelan ruang pencarian
 
-**Search limit reached** means the time or state budget ran out with work remaining. **No solution from this position** means the queue was exhausted.
+Satu keadaan menyimpan posisi **keempat** robot dalam urutan tetap `[Ruby, Mint, Volt, Byte]`. Posisi robot pendamping ikut menentukan petak tempat robot target dapat berhenti. Dua keadaan dengan posisi robot target yang sama bisa menghasilkan pilihan langkah yang berbeda.
 
-Run `npm test` for movement, BFS and IDDFS tests. Run `npm run test:browser` for Playwright checks using local Chrome, including touch controls, chapter restoration and solution replay. The browser suite records screenshots and reproducible search measurements in `evaluation/`. See the [product requirements and acceptance criteria](PRD_FrostBound_Bots.md) for the full algorithm, rules and evaluation procedure.
+Papan dan tujuan tetap selama satu pencarian. Dari setiap keadaan, solver mencoba hingga 16 aksi, yaitu empat robot dikalikan empat arah. Setiap aksi memakai fungsi [slide](src/core/movement.js) yang juga digunakan dalam permainan. Fungsi ini menyimpan tabel tetangga papan untuk dinding dan petak tertutup, kemudian memeriksa posisi robot saat menyusuri petak satu per satu. Aksi yang membuat robot diam dilewati. Setiap luncuran yang berhasil membentuk sisi berbiaya satu pada graf keadaan, sehingga solusi terpendek berarti jumlah luncuran minimum.
+
+Petak pada papan 16 × 16 dapat direpresentasikan dengan indeks 0–255. Solver menggabungkan empat indeks tersebut sebagai digit basis 256 untuk membuat kunci numerik yang unik bagi setiap susunan robot. Sebuah keadaan memenuhi tujuan ketika indeks posisi robot target sama dengan indeks petak tujuan.
+
+### Breadth-First Search (BFS)
+
+[BFS](src/algorithms/bfs.js) menggunakan antrean FIFO untuk memproses keadaan berdasarkan jumlah langkah. Ia memproses keadaan awal, kemudian keadaan yang dicapai dalam satu langkah, dua langkah, dan seterusnya. Karena biaya semua sisi sama, tujuan pertama yang ditemukan memberikan jumlah langkah minimum.
+
+Setiap keadaan baru ditandai dalam `seen` saat dimasukkan ke antrean. Jika susunan itu muncul lagi melalui rangkaian langkah lain, solver melewatinya. Entri antrean menyimpan indeks induk dan aksi yang digunakan untuk mencapainya. Saat menemukan tujuan, solver menelusuri induk ke belakang lalu membalik urutan aksi. Antrean dan himpunan keadaan yang sudah ditemukan tumbuh seiring luasnya eksplorasi.
+
+### Iterative Deepening Depth-First Search (IDDFS)
+
+[IDDFS](src/algorithms/iddfs.js) menjalankan pencarian mendalam dengan batas yang naik dari 0, 1, 2, dan seterusnya. Pada setiap iterasi, solver menelusuri cabang menggunakan stack. Setelah mencapai batas, ia mundur untuk mencoba pilihan berikutnya. Himpunan `onPath` mencegah siklus pada jalur yang sedang ditelusuri. Ketika tujuan ditemukan, aksi pada stack dan aksi terakhir membentuk solusi.
+
+Batas pertama yang menghasilkan solusi sama dengan panjang solusi terpendek. Stack aktif tumbuh mengikuti kedalaman, sementara implementasi juga menyimpan himpunan keadaan untuk mendeteksi habisnya pencarian dan jejak untuk animasi. Keadaan dangkal dapat dikunjungi berulang kali saat batas bertambah, sehingga anggaran pencarian bisa habis sebelum IDDFS mencapai kedalaman solusi.
+
+### A* Search
+
+[A*](src/algorithms/astar.js) memakai min-heap untuk memilih keadaan dengan nilai `f = g + h` terendah. Nilai `g` adalah jumlah langkah dari posisi awal dan `h` adalah estimasi sisa langkah. Jika nilai `f` sama, heap mendahulukan nilai `h` yang lebih kecil. Map `bestG` menyimpan biaya terkecil yang sudah ditemukan untuk setiap keadaan.
+
+Heuristik menambah satu jika baris robot target berbeda dari baris petak tujuan dan satu jika kolomnya berbeda. Nilainya 0 saat robot sudah di tujuan, 1 saat hanya satu koordinat berbeda, dan 2 saat keduanya berbeda. Satu luncuran hanya mengubah baris atau kolom, sehingga estimasi ini merupakan batas bawah biaya aktual. Dinding dan posisi robot lain tetap diperiksa saat membangkitkan langkah. Heuristik hanya menentukan prioritas antrean dan tidak menghitung langkah tambahan untuk menata robot pendamping.
+
+## Pemakaian algoritma dalam permainan
+
+- **Pembuatan ronde.** Generator membuat dinding berbentuk L di sektor-sektor papan dan menempatkan robot pada empat petak berbeda di luar area tengah yang tertutup. BFS menjelajahi keadaan dari posisi awal untuk mengumpulkan pasangan robot dan petak tujuan yang bisa dicapai. Kedalaman saat pasangan pertama kali ditemukan menjadi nilai **Minimum Moves**. Permainan memilih target secara acak dari kandidat yang ditemukan.
+- **Petunjuk.** BFS mencari solusi dari susunan robot saat tombol **Hint** ditekan. Langkah pertama bisa menggerakkan robot pendamping untuk menyiapkan titik berhenti.
+- **Visualisasi.** **Solve** mengambil hingga 100 sampel dari jejak eksplorasi untuk ditampilkan pada **Search Exploration**. Jika solusi ditemukan, **Solution Playback** memutar urutan luncuran yang membawa robot ke tujuan.
+
+Satu pemanggilan pencarian untuk pembuatan ronde menggunakan anggaran 900 ekspansi atau 100 ms. Pencarian untuk **Hint** dan **Solve** menggunakan anggaran 20.000 ekspansi atau 750 ms. Pekerjaan dibagi menjadi potongan waktu singkat agar browser dapat merespons kontrol. Status `limited` berarti batas tercapai dengan eksplorasi tersisa. Status `exhausted` berarti pencarian telah menghabiskan ruang yang bisa dijelajahi dari posisi awal.
+
+### Contoh solusi dua langkah
+
+Pada [papan uji 8 × 8](tests/fixtures/exampleBoard.js), Ruby mulai di indeks 8 dan targetnya di indeks 11. Mint berada di indeks 4.
+
+1. Gerakkan **Mint ke bawah**. Dinding di antara indeks 12 dan 20 membuat Mint berhenti di indeks 12.
+2. Gerakkan **Ruby ke kanan**. Mint menghalangi indeks 12, sehingga Ruby berhenti tepat di indeks 11.
+
+Contoh yang sama tersedia di [prototipe](prototype/index.html).
+
+## Pengujian
+
+- `npm test` menjalankan pengujian aturan luncuran, BFS, IDDFS, dan pengambilan sampel jejak.
+- `npm run test:browser` menjalankan Playwright dengan Chrome lokal, termasuk pengujian kontrol sentuh, pemulihan chapter, dan pemutaran solusi.
+- Folder [evaluation](evaluation/) berisi tangkapan layar dan hasil pengukuran pencarian pada papan uji dengan seed tetap.
