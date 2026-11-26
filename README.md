@@ -1,76 +1,76 @@
 ﻿# FrostBound Bots
 
-FrostBound Bots adalah game puzzle satu pemain di papan es 16 × 16. Tujuannya membawa robot yang ditentukan ke petak target dengan jumlah langkah sesedikit mungkin. Ada empat robot yang dapat digerakkan, yaitu Ruby (merah), Mint (hijau), Volt (kuning), dan Byte (biru). Robot lain bisa diposisikan sebagai penghalang agar robot target berhenti di petak yang tepat.
+FrostBound Bots is a single-player puzzle game played on a 16 × 16 ice board. The goal is to move the designated robot to the target square in as few moves as possible. You can control four robots: Ruby (red), Mint (green), Volt (yellow), and Byte (blue). Position the other robots as blockers to help the target robot stop on the right square.
 
-## Menjalankan proyek
+## Running the project
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Buka URL lokal yang dicetak Vite di terminal. Gunakan `npm run build` untuk membuat build produksi dan `npm run preview` untuk membukanya secara lokal.
+Open the local URL that Vite prints in the terminal. Use `npm run build` to create a production build and `npm run preview` to preview it locally.
 
-## Cara bermain
+## How to play
 
-Pilih robot dengan klik, sentuhan, atau tombol **1–4**, lalu gerakkan dengan tombol panah atau kontrol di layar. Robot meluncur lurus sampai terhalang dinding, tepi papan, petak es yang tertutup, atau robot lain. Satu luncuran yang mengubah posisi dihitung sebagai satu langkah. Ronde selesai saat robot target **berhenti** di petak target.
+Select a robot with a click, a tap, or the **1–4** keys, then move it with the arrow keys or the on-screen controls. A robot slides in a straight line until it is blocked by a wall, the edge of the board, a blocked ice square, or another robot. Each slide that changes the robot’s position counts as one move. The round ends when the target robot **stops** on the target square.
 
-| Kontrol | Fungsi |
+| Control | Function |
 | --- | --- |
-| **Hint** | Menampilkan robot dan arah untuk langkah pertama pada salah satu solusi terpendek dari posisi sekarang. |
-| **Solve** | Menjalankan BFS, IDDFS, atau A*, lalu menampilkan eksplorasi dan memutar ulang solusi jika ditemukan. |
-| **Undo** | Membatalkan satu langkah terakhir. |
-| **Restart Round (R)** | Mengembalikan posisi robot ke awal ronde dan mengosongkan riwayat langkah. |
-| **Next Round** | Memulai ronde berikutnya di papan yang sama dari posisi akhir keempat robot, dengan target baru. |
-| **New Game** | Membuat chapter dengan papan dan posisi awal baru. |
+| **Hint** | Shows which robot to move and in which direction for the first move of a shortest solution from the current position. |
+| **Solve** | Runs BFS, IDDFS, or A*, then visualizes the search and plays back the solution if one is found. |
+| **Undo** | Reverses the last move. |
+| **Restart Round (R)** | Resets the robots to their starting positions for the round and clears the move history. |
+| **Next Round** | Starts the next round on the same board with a new target, using the four robots’ final positions. |
+| **New Game** | Creates a chapter with a new board and new starting positions. |
 
-**Your Moves** menghitung langkah pemain pada ronde berjalan. **Minimum Moves** menunjukkan panjang solusi terpendek dari posisi awal ronde. Memuat ulang halaman mengembalikan ronde pertama chapter yang tersimpan di browser.
+**Your Moves** counts the player’s moves in the current round. **Minimum Moves** shows the length of the shortest solution from the round’s starting positions. Reloading the page returns you to the first round of the chapter saved in the browser.
 
-## Pemodelan ruang pencarian
+## Modeling the search space
 
-Satu keadaan menyimpan posisi **keempat** robot dalam urutan tetap `[Ruby, Mint, Volt, Byte]`. Posisi robot pendamping ikut menentukan petak tempat robot target dapat berhenti. Dua keadaan dengan posisi robot target yang sama bisa menghasilkan pilihan langkah yang berbeda.
+A state stores the positions of **all four** robots in a fixed order, `[Ruby, Mint, Volt, Byte]`. The other robots’ positions help determine where the target robot can stop. Two states with the target robot in the same position can have different available moves.
 
-Papan dan tujuan tetap selama satu pencarian. Dari setiap keadaan, solver mencoba hingga 16 aksi, yaitu empat robot dikalikan empat arah. Setiap aksi memakai fungsi [slide](src/core/movement.js) yang juga digunakan dalam permainan. Fungsi ini menyimpan tabel tetangga papan untuk dinding dan petak tertutup, kemudian memeriksa posisi robot saat menyusuri petak satu per satu. Aksi yang membuat robot diam dilewati. Setiap luncuran yang berhasil membentuk sisi berbiaya satu pada graf keadaan, sehingga solusi terpendek berarti jumlah luncuran minimum.
+The board and goal stay fixed throughout a search. From each state, the solver tries up to 16 actions by pairing each of the four robots with each of the four directions. Every action uses the same [slide](src/core/movement.js) function as the game. The function caches a board adjacency table that accounts for walls and blocked squares, then checks the robots’ positions as it traverses the board one square at a time. The solver skips actions that leave the robot in place. Each successful slide forms an edge with a cost of one in the state graph, so the shortest solution uses the fewest slides.
 
-Petak pada papan 16 × 16 dapat direpresentasikan dengan indeks 0–255. Solver menggabungkan empat indeks tersebut sebagai digit basis 256 untuk membuat kunci numerik yang unik bagi setiap susunan robot. Sebuah keadaan memenuhi tujuan ketika indeks posisi robot target sama dengan indeks petak tujuan.
+The squares on a 16 × 16 board can be represented by indices 0–255. The solver combines the four indices as base-256 digits to create a unique numeric key for each arrangement of robots. A state meets the goal when the target robot’s position index matches the target square’s index.
 
 ### Breadth-First Search (BFS)
 
-[BFS](src/algorithms/bfs.js) menggunakan antrean FIFO untuk memproses keadaan berdasarkan jumlah langkah. Ia memproses keadaan awal, kemudian keadaan yang dicapai dalam satu langkah, dua langkah, dan seterusnya. Karena biaya semua sisi sama, tujuan pertama yang ditemukan memberikan jumlah langkah minimum.
+[BFS](src/algorithms/bfs.js) uses a first-in, first-out (FIFO) queue to process states in order of move count. It processes the initial state, then states reached in one move, two moves, and so on. Because every edge has the same cost, the first goal state found gives the minimum number of moves.
 
-Setiap keadaan baru ditandai dalam `seen` saat dimasukkan ke antrean. Jika susunan itu muncul lagi melalui rangkaian langkah lain, solver melewatinya. Entri antrean menyimpan indeks induk dan aksi yang digunakan untuk mencapainya. Saat menemukan tujuan, solver menelusuri induk ke belakang lalu membalik urutan aksi. Antrean dan himpunan keadaan yang sudah ditemukan tumbuh seiring luasnya eksplorasi.
+The solver adds each new state to `seen` when it enqueues it. If the same arrangement appears again through another sequence of moves, the solver skips it. Each queue entry stores its parent index and the action used to reach it. When the solver finds the goal, it follows the parent links backward and reverses the action sequence. The queue and the set of discovered states grow as the search explores more of the graph.
 
 ### Iterative Deepening Depth-First Search (IDDFS)
 
-[IDDFS](src/algorithms/iddfs.js) menjalankan pencarian mendalam dengan batas yang naik dari 0, 1, 2, dan seterusnya. Pada setiap iterasi, solver menelusuri cabang menggunakan stack. Setelah mencapai batas, ia mundur untuk mencoba pilihan berikutnya. Himpunan `onPath` mencegah siklus pada jalur yang sedang ditelusuri. Ketika tujuan ditemukan, aksi pada stack dan aksi terakhir membentuk solusi.
+[IDDFS](src/algorithms/iddfs.js) runs depth-limited searches with limits of 0, 1, 2, and so on. In each iteration, the solver explores branches using a stack. When it reaches the depth limit, it backtracks to try the next option. The `onPath` set prevents cycles on the current path. When the solver finds the goal, the actions on the stack and the final action form the solution.
 
-Batas pertama yang menghasilkan solusi sama dengan panjang solusi terpendek. Stack aktif tumbuh mengikuti kedalaman, sementara implementasi juga menyimpan himpunan keadaan untuk mendeteksi habisnya pencarian dan jejak untuk animasi. Keadaan dangkal dapat dikunjungi berulang kali saat batas bertambah, sehingga anggaran pencarian bisa habis sebelum IDDFS mencapai kedalaman solusi.
+The first depth limit that yields a solution equals the length of the shortest solution. The active stack grows with depth. The implementation also keeps a set of states to detect search exhaustion and a trace for animation. The solver can revisit shallow states as the limit increases, so it may use up its search budget before reaching the solution depth.
 
 ### A* Search
 
-[A*](src/algorithms/astar.js) memakai min-heap untuk memilih keadaan dengan nilai `f = g + h` terendah. Nilai `g` adalah jumlah langkah dari posisi awal dan `h` adalah estimasi sisa langkah. Jika nilai `f` sama, heap mendahulukan nilai `h` yang lebih kecil. Map `bestG` menyimpan biaya terkecil yang sudah ditemukan untuk setiap keadaan.
+[A*](src/algorithms/astar.js) uses a min-heap to select the state with the lowest `f = g + h`. Here, `g` is the number of moves from the initial state, and `h` estimates the remaining moves. When states have the same `f` value, the heap prioritizes the one with the lower `h`. The `bestG` map stores the lowest cost found so far for each state.
 
-Heuristik menambah satu jika baris robot target berbeda dari baris petak tujuan dan satu jika kolomnya berbeda. Nilainya 0 saat robot sudah di tujuan, 1 saat hanya satu koordinat berbeda, dan 2 saat keduanya berbeda. Satu luncuran hanya mengubah baris atau kolom, sehingga estimasi ini merupakan batas bawah biaya aktual. Dinding dan posisi robot lain tetap diperiksa saat membangkitkan langkah. Heuristik hanya menentukan prioritas antrean dan tidak menghitung langkah tambahan untuk menata robot pendamping.
+The heuristic adds one if the target robot’s row differs from the target square’s row and one if the columns differ. The value is 0 when the robot is at the target, 1 when only one coordinate differs, and 2 when both differ. A slide changes only one coordinate, so this estimate is a lower bound on the actual cost. The solver checks walls and the positions of other robots when generating moves. The heuristic sets queue priorities and omits any extra moves needed to position the other robots.
 
-## Pemakaian algoritma dalam permainan
+## How the game uses the algorithms
 
-- **Pembuatan ronde.** Generator membuat dinding berbentuk L di sektor-sektor papan dan menempatkan robot pada empat petak berbeda di luar area tengah yang tertutup. BFS menjelajahi keadaan dari posisi awal untuk mengumpulkan pasangan robot dan petak tujuan yang bisa dicapai. Kedalaman saat pasangan pertama kali ditemukan menjadi nilai **Minimum Moves**. Permainan memilih target secara acak dari kandidat yang ditemukan.
-- **Petunjuk.** BFS mencari solusi dari susunan robot saat tombol **Hint** ditekan. Langkah pertama bisa menggerakkan robot pendamping untuk menyiapkan titik berhenti.
-- **Visualisasi.** **Solve** mengambil hingga 100 sampel dari jejak eksplorasi untuk ditampilkan pada **Search Exploration**. Jika solusi ditemukan, **Solution Playback** memutar urutan luncuran yang membawa robot ke tujuan.
+- **Round generation.** The generator creates L-shaped walls in different sectors of the board and places the robots on four distinct squares outside the blocked central area. BFS explores states from the initial positions to collect reachable robot and target square pairs. The depth at which it first finds each pair becomes that pair’s **Minimum Moves** value. The game chooses a target at random from the candidates found.
+- **Hints.** When the player presses **Hint**, BFS searches for a solution from the current arrangement of robots. The first move may position another robot to provide a stopping point.
+- **Visualization.** **Solve** takes up to 100 samples from the search trace to display in **Search Exploration**. If the solver finds a solution, **Solution Playback** shows the sequence of slides that brings the robot to the target.
 
-Satu pemanggilan pencarian untuk pembuatan ronde menggunakan anggaran 900 ekspansi atau 100 ms. Pencarian untuk **Hint** dan **Solve** menggunakan anggaran 20.000 ekspansi atau 750 ms. Pekerjaan dibagi menjadi potongan waktu singkat agar browser dapat merespons kontrol. Status `limited` berarti batas tercapai dengan eksplorasi tersisa. Status `exhausted` berarti pencarian telah menghabiskan ruang yang bisa dijelajahi dari posisi awal.
+Each search for round generation has a budget of 900 expansions or 100 ms. Searches for **Hint** and **Solve** have a budget of 20,000 expansions or 750 ms. The game splits the work into short time slices so the browser stays responsive. A `limited` status means the search reached its budget with states left to explore. An `exhausted` status means the search explored the entire space reachable from the initial state.
 
-### Contoh solusi dua langkah
+### Two-move solution example
 
-Pada [papan uji 8 × 8](tests/fixtures/exampleBoard.js), Ruby mulai di indeks 8 dan targetnya di indeks 11. Mint berada di indeks 4.
+On the [8 × 8 test board](tests/fixtures/exampleBoard.js), Ruby starts at index 8 and its target is at index 11. Mint starts at index 4.
 
-1. Gerakkan **Mint ke bawah**. Dinding di antara indeks 12 dan 20 membuat Mint berhenti di indeks 12.
-2. Gerakkan **Ruby ke kanan**. Mint menghalangi indeks 12, sehingga Ruby berhenti tepat di indeks 11.
+1. Move **Mint down**. The wall between indices 12 and 20 makes Mint stop at index 12.
+2. Move **Ruby right**. Mint blocks index 12, so Ruby stops at index 11.
 
-Contoh yang sama tersedia di [prototipe](prototype/index.html).
+The same example is available in the [prototype](prototype/index.html).
 
-## Pengujian
+## Testing
 
-- `npm test` menjalankan pengujian aturan luncuran, BFS, IDDFS, dan pengambilan sampel jejak.
-- `npm run test:browser` menjalankan Playwright dengan Chrome lokal, termasuk pengujian kontrol sentuh, pemulihan chapter, dan pemutaran solusi.
-- Folder [evaluation](evaluation/) berisi tangkapan layar dan hasil pengukuran pencarian pada papan uji dengan seed tetap.
+- `npm test` runs tests for slide rules, BFS, IDDFS, and search trace sampling.
+- `npm run test:browser` runs Playwright with a local installation of Chrome and tests touch controls, chapter restoration, and solution playback.
+- The [evaluation](evaluation/) folder contains screenshots and search performance measurements from fixed-seed test boards.
